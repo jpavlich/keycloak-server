@@ -5,13 +5,20 @@ import java.util.NoSuchElementException;
 import org.keycloak.Config;
 import org.keycloak.exportimport.ExportImportManager;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.services.managers.ApplianceBootstrap;
+import org.keycloak.services.managers.RealmManager;
 import org.keycloak.services.resources.KeycloakApplication;
 import org.keycloak.services.util.JsonConfigProviderFactory;
+import org.keycloak.util.JsonSerialization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import com.suchorski.server.keycloak.providers.JsonProviderFactory;
-import jakarta.ws.rs.ApplicationPath;
 
+import jakarta.ws.rs.ApplicationPath;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,6 +37,7 @@ public class App extends KeycloakApplication {
 	protected ExportImportManager bootstrap() {
 		final ExportImportManager exportImportManager = super.bootstrap();
 		createMasterRealmAdminUser();
+		createMyRealm();
 		return exportImportManager;
 	}
 
@@ -39,12 +47,34 @@ public class App extends KeycloakApplication {
 			try {
 				session.getTransactionManager().begin();
 				applianceBootstrap.createMasterRealmUser(properties.username(), properties.password());
+
 				session.getTransactionManager().commit();
 			} catch (Exception ex) {
 				log.warn("Couldn't create keycloak master admin user: {}", ex.getMessage());
 				session.getTransactionManager().rollback();
 			}
 		}
+	}
+
+	private void createMyRealm() {
+		KeycloakSession session = getSessionFactory().create();
+
+		try {
+			session.getTransactionManager().begin();
+
+			RealmManager manager = new RealmManager(session);
+			Resource lessonRealmImportFile = new ClassPathResource("myrealm.json");
+
+			manager.importRealm(
+					JsonSerialization.readValue(lessonRealmImportFile.getInputStream(), RealmRepresentation.class));
+
+			session.getTransactionManager().commit();
+		} catch (Exception ex) {
+			log.warn("Failed to import Realm json file: {}", ex.getMessage());
+			session.getTransactionManager().rollback();
+		}
+
+		session.close();
 	}
 
 }
