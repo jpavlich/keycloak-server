@@ -1,3 +1,6 @@
+server:
+  port: 9000
+
 spring:
   jpa:
     defer-datasource-initialization: true
@@ -16,7 +19,3 @@ keycloak:
     username: admin
     password: admin
     context-redirect: true
-
-logging:
-  level:
-    root: ERROR
