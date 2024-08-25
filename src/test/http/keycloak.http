@@ -1,2 +1,2 @@
-###
-GET http://localhost:9000/auth
+### Retorna todos los endpoints para autenticarse con Keycloak
+GET http://localhost:9000/auth/realms/myrealm/.well-known/openid-configuration
