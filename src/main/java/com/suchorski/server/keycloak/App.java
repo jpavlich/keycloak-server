@@ -11,8 +11,6 @@ import org.keycloak.services.managers.RealmManager;
 import org.keycloak.services.resources.KeycloakApplication;
 import org.keycloak.services.util.JsonConfigProviderFactory;
 import org.keycloak.util.JsonSerialization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
